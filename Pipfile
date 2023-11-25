@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+langchain = "*"
+requests = "*"
+bs4 = "*"
+constants = "*"
+unidecode = "*"
+scrapy = "*"
+pinecone-client = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
