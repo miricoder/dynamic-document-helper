@@ -10,6 +10,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.chains import ConversationChain
 import pinecone
 from dotenv import load_dotenv
+
 load_dotenv()
 
 pinecone.init(
@@ -44,4 +45,5 @@ def run_llm(query: str, chat_history: List[Dict[str, Any]] = []) -> Any:
 if __name__ == "__main__":
     # print(run_llm(query="According to the article when will the Bitcoin Price reach $100,000? Summarize your response in single senctence."))
     # print(run_llm(query="Who is Karlsson-on-the-Roof?"))
-    print(run_llm(query="When did this cartoon become popular in Soviet Union?"))
+    # print(run_llm(query="When did this cartoon become popular in Soviet Union?"))
+    print(run_llm(query="Who is Elon Musk?"))
