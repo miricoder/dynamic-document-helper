@@ -5,7 +5,8 @@ from streamlit_chat import message
 from typing import Set
 import time
 from backend.core import run_llm
-from backend.ingestion import ingest_docs
+from backend.ingestion2 import ingest_docs
+# from backend.web_scraper import scrape_website
 load_dotenv()
 
 
@@ -22,6 +23,8 @@ def main():
 
     # Step 3: User Enters website link
     website_link = st.text_input("Enter the website link:")
+    ingest_docs(website_link)
+    message("Web Scraping the text off of the link you have shared to ingest it into DB for further retrieval")
     if not website_link:
         st.warning("Please enter a webite link.")
         st.stop()
@@ -89,6 +92,14 @@ def main():
         ):
             message(user_query, is_user=True)
             message(generated_response)
+
+        st.title("Streamlit Session Reset")
+
+        # Your existing widgets and interaction code here
+
+        # Button to clear the session
+        if st.button("Reset Session"):
+            st.caching.clear_cache()        
 
 if __name__ == "__main__":
     main()

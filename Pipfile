@@ -11,6 +11,13 @@ constants = "*"
 unidecode = "*"
 scrapy = "*"
 pinecone-client = "*"
+streamlit-chat = "*"
+python-dotenv = "*"
+openai = "*"
+setuptools-rust = "*"
+rust = "*"
+build = "*"
+tiktoken = "*"
 
 [dev-packages]
 
