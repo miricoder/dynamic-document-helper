@@ -15,6 +15,7 @@ pinecone.init(
 )
 
 
+
 class SimpleDocument:
     def __init__(self, content, metadata):
         self.page_content = content

@@ -1,7 +1,7 @@
 import streamlit as st
 from typing import Set
-from backend.core import run_llm
-from backend.ingestion2 import ingest_docs
+from backend.core2 import run_llm
+from backend.ingestion3 import ingest_docs
 from openai import AsyncOpenAI
 from langchain.embeddings import OpenAIEmbeddings
 import asyncio
@@ -10,7 +10,7 @@ from streamlit_chat import message
 # Function to validate OPEN AI API Key
 async def validate_api_key(api_key=None) -> None:
     if api_key is None:
-        api_key = st.text_input("Please Enter your OPEN AI API KEY:")
+        api_key = st.text_input("Please Enter your OPEN AI API KEY:", type='password')
 
     client = AsyncOpenAI(api_key=api_key)
 
@@ -27,11 +27,11 @@ async def validate_api_key(api_key=None) -> None:
         )
 
         # Check if the request was successful
-        
         if chat_completion and hasattr(chat_completion, 'id'):
             st.success("API Key is valid. You can proceed to the chat page.")
             # Enable the chat functionality here
             st.session_state.api_key_valid = True
+            st.session_state.api_key = api_key
         else:
             st.error("Invalid API Key. Please enter a valid key.")
             # Disable the chat functionality here
@@ -43,11 +43,11 @@ async def validate_api_key(api_key=None) -> None:
         st.session_state.api_key_valid = False
 
 # Function to handle web scraping and data ingestion
-def scrape_and_ingest_data(website_link: str, api_key: str):
-    ingest_docs(website_link)
+def scrape_and_ingest_data(website_link: str, api_key: str, pinecone_api_key: str, pinecone_environment: str):
+    ingest_docs(website_link, api_key, pinecone_api_key, pinecone_environment)
 
 # Function to run the chat logic
-def run_chat(prompt: str):
+def run_chat(prompt: str, api_key: str, pinecone_api_key: str, pinecone_environment: str):
     if "user_prompt_history" not in st.session_state:
         st.session_state["user_prompt_history"] = []
 
@@ -70,7 +70,14 @@ def run_chat(prompt: str):
 
     if prompt:
         with st.spinner("Generating Response..."):
-            generated_response = run_llm(query=prompt, chat_history=st.session_state["chat_history"])
+            # Pass the API key, pinecone_api_key, and pinecone_environment to run_llm
+            generated_response = run_llm(
+                query=prompt,
+                chat_history=st.session_state["chat_history"],
+                api_key=api_key,
+                pinecone_api_key=pinecone_api_key,
+                pinecone_environment=pinecone_environment
+            )
 
             sources = set(
                 [doc.metadata["source"] for doc in generated_response["source_documents"]]
@@ -88,12 +95,18 @@ async def main():
     st.title("ChatGPT Interaction App")
 
     # Step 1: User enters OPEN AI API Key
-    api_key = st.sidebar.text_input("Enter OPEN AI API Key:")
+    api_key = st.sidebar.text_input("Enter OPEN AI API Key:", type='password')
+
+    # Step 2: User enters Pinecone API Key
+    pinecone_api_key = st.sidebar.text_input("Enter Pinecone API Key:", type='password')
+
+    # Step 3: User enters Pinecone Environment Region
+    pinecone_environment = st.sidebar.text_input("Enter Pinecone Environment Region:", type='password')
 
     if st.sidebar.button("Validate API Key"):
         # (Integration of Code 1) Call the async validate_api_key function
         await validate_api_key(api_key)
-        
+
         # Check if the API key is validated successfully
         if st.session_state.get('api_key_valid', False):
             st.sidebar.success("API Key validated successfully!")
@@ -101,30 +114,32 @@ async def main():
         else:
             st.sidebar.error("Invalid API Key. Please try again.")
 
-    # Step 2: API Key validation successful, proceed to next steps
+    # Step 4: API Key validation successful, proceed to next steps
     if st.session_state.get('api_key_validated', False):
         # ... (Rest of your existing code in Code 2)
 
-        # Step 3: User inputs website link for web scraping
+        # Step 5: User inputs website link for web scraping
         website_link = st.text_input("Enter Website Link for Web Scraping:", key="website_link")
 
         if st.button("Scrape and Ingest Data"):
             if website_link:
-                scrape_and_ingest_data(website_link)
+                # Pass the API key, pinecone_api_key, and pinecone_environment
+                scrape_and_ingest_data(website_link, st.session_state.api_key, pinecone_api_key, pinecone_environment)
                 st.success("Data scraped and ingested successfully!")
             else:
                 st.warning("Please enter a valid website link.")
 
-        # Step 4: User enters chat mode
+        # Step 6: User enters chat mode
         st.subheader("Chat Mode")
 
-        # Allow user to press Enter for sending the prompt
-        # new_chat_prompt = st.text_input("Prompt", key="new_chat_prompt", placeholder="Enter your prompt here...")
+        # Allow the user to press Enter for sending the prompt
         new_chat_prompt = st.text_input("Prompt", placeholder="Enter your message here...") or st.button(
             "Submit"
         )
-        # if st.button("Send", key="new_chat_send"):
-        run_chat(new_chat_prompt)
+
+        # Pass the API key, pinecone_api_key, and pinecone_environment to run_chat
+        run_chat(new_chat_prompt, st.session_state.api_key, pinecone_api_key, pinecone_environment)
+
         # Button to reset chat
         if st.button("Reset Chat"):
             st.session_state["chat_history"] = []
