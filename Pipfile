@@ -18,6 +18,7 @@ setuptools-rust = "*"
 rust = "*"
 build = "*"
 tiktoken = "*"
+sessionstate = "*"
 
 [dev-packages]
 

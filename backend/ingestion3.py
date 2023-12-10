@@ -26,7 +26,7 @@ def ingest_docs(website_url: str, embeddings_api_key: str, pinecone_api_key: str
     scraped_data = scrape_website(website_url)
 
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000, chunk_overlap=100, separators=["\n\n", "\n", " ", ""]
+        chunk_size=1000, chunk_overlap=200, separators=["\n\n", "\n", " ", ""]
     )
 
     # Create a SimpleDocument with the scraped data
