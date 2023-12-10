@@ -4,19 +4,19 @@ pandas==1.3.5
 hugchat==0.3.7
 # protobuf==1.24.0 
 
-langchain=="*"
-requests=="*"
-bs4=="*"
-constants=="*"
-unidecode=="*"
-scrapy=="*"
-pinecone-client=="*"
-streamlit-chat=="*"
-python-dotenv=="*"
-openai=="*"
-setuptools-rust=="*"
-rust=="*"
-build=="*"
-tiktoken=="*"
-sessionstate=="*"
+langchain *
+requests *
+bs4 *
+constants *
+unidecode *
+scrapy *
+pinecone-client *
+streamlit-chat *
+python-dotenv *
+openai *
+setuptools-rust *
+rust *
+build *
+tiktoken *
+sessionstate *
 python_version=="3.9"
