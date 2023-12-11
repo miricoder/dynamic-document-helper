@@ -1,7 +1,7 @@
 import streamlit as st
 from typing import Set
-# from backend.core2 import run_llm
-from core2 import run_llm
+from backend.core2 import run_llm
+# from core2 import run_llm
 from backend.ingestion3 import ingest_docs
 from openai import AsyncOpenAI
 from langchain.embeddings import OpenAIEmbeddings
