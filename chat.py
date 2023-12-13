@@ -7,6 +7,7 @@ from langchain.embeddings import OpenAIEmbeddings
 import asyncio
 from streamlit_chat import message
 
+
 # Function to validate OPEN AI API Key
 async def validate_api_key(api_key=None) -> None:
     if api_key is None:
@@ -27,8 +28,8 @@ async def validate_api_key(api_key=None) -> None:
         )
 
         # Check if the request was successful
-        
-        if chat_completion and hasattr(chat_completion, 'id'):
+
+        if chat_completion and hasattr(chat_completion, "id"):
             st.success("API Key is valid. You can proceed to the chat page.")
             # Enable the chat functionality here
             st.session_state.api_key_valid = True
@@ -42,9 +43,11 @@ async def validate_api_key(api_key=None) -> None:
         # Disable the chat functionality on error
         st.session_state.api_key_valid = False
 
+
 # Function to handle web scraping and data ingestion
 def scrape_and_ingest_data(website_link: str):
     ingest_docs(website_link)
+
 
 # Function to run the chat logic
 def run_chat(prompt: str):
@@ -70,10 +73,15 @@ def run_chat(prompt: str):
 
     if prompt:
         with st.spinner("Generating Response..."):
-            generated_response = run_llm(query=prompt, chat_history=st.session_state["chat_history"])
+            generated_response = run_llm(
+                query=prompt, chat_history=st.session_state["chat_history"]
+            )
 
             sources = set(
-                [doc.metadata["source"] for doc in generated_response["source_documents"]]
+                [
+                    doc.metadata["source"]
+                    for doc in generated_response["source_documents"]
+                ]
             )
             formatted_response = (
                 f"{generated_response['answer']} \n\n {create_sources_string(sources)}"
@@ -81,7 +89,10 @@ def run_chat(prompt: str):
             st.session_state["user_prompt_history"].append(prompt)
             st.session_state["chat_answer_history"].append(formatted_response)
 
-            st.session_state["chat_history"].append((prompt, generated_response["answer"]))
+            st.session_state["chat_history"].append(
+                (prompt, generated_response["answer"])
+            )
+
 
 # Streamlit app
 async def main():
@@ -93,20 +104,22 @@ async def main():
     if st.sidebar.button("Validate API Key"):
         # (Integration of Code 1) Call the async validate_api_key function
         await validate_api_key(api_key)
-        
+
         # Check if the API key is validated successfully
-        if st.session_state.get('api_key_valid', False):
+        if st.session_state.get("api_key_valid", False):
             st.sidebar.success("API Key validated successfully!")
-            st.session_state.api_key_validated = True    
+            st.session_state.api_key_validated = True
         else:
             st.sidebar.error("Invalid API Key. Please try again.")
 
     # Step 2: API Key validation successful, proceed to next steps
-    if st.session_state.get('api_key_validated', False):
+    if st.session_state.get("api_key_validated", False):
         # ... (Rest of your existing code in Code 2)
 
         # Step 3: User inputs website link for web scraping
-        website_link = st.text_input("Enter Website Link for Web Scraping:", key="website_link")
+        website_link = st.text_input(
+            "Enter Website Link for Web Scraping:", key="website_link"
+        )
 
         if st.button("Scrape and Ingest Data"):
             if website_link:
@@ -120,9 +133,9 @@ async def main():
 
         # Allow user to press Enter for sending the prompt
         # new_chat_prompt = st.text_input("Prompt", key="new_chat_prompt", placeholder="Enter your prompt here...")
-        new_chat_prompt = st.text_input("Prompt", placeholder="Enter your message here...") or st.button(
-            "Submit"
-        )
+        new_chat_prompt = st.text_input(
+            "Prompt", placeholder="Enter your message here..."
+        ) or st.button("Submit")
         # if st.button("Send", key="new_chat_send"):
         run_chat(new_chat_prompt)
 
@@ -144,12 +157,15 @@ async def main():
 
         # Display chat history
         if st.session_state.get("chat_answer_history"):
-            for i, (generated_response, user_query) in enumerate(zip(
-                st.session_state["chat_answer_history"], st.session_state["user_prompt_history"]
-            )):
+            for i, (generated_response, user_query) in enumerate(
+                zip(
+                    st.session_state["chat_answer_history"],
+                    st.session_state["user_prompt_history"],
+                )
+            ):
                 message(user_query, is_user=True, key=f"user_{i}")
                 message(generated_response, key=f"response_{i}")
-    
+
 
 if __name__ == "__main__":
     asyncio.run(main())

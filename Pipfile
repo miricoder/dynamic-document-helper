@@ -18,7 +18,7 @@ setuptools-rust = "*"
 rust = "*"
 build = "*"
 tiktoken = "*"
-
+retrying = "*"
 
 [dev-packages]
 

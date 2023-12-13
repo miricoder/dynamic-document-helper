@@ -10,7 +10,14 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.chains import ConversationChain
 import pinecone
 
-def run_llm(query: str, api_key: str, pinecone_api_key: str, pinecone_environment: str, chat_history: List[Dict[str, Any]] = []) -> Any:
+
+def run_llm(
+    query: str,
+    api_key: str,
+    pinecone_api_key: str,
+    pinecone_environment: str,
+    chat_history: List[Dict[str, Any]] = [],
+) -> Any:
     pinecone.init(api_key=pinecone_api_key, environment=pinecone_environment)
 
     # Initialize OpenAIEmbeddings with the provided api_key
@@ -29,14 +36,17 @@ def run_llm(query: str, api_key: str, pinecone_api_key: str, pinecone_environmen
     )
     return qa({"question": query, "chat_history": chat_history})
 
+
 if __name__ == "__main__":
     openai_api_key = input("Please Enter your OPEN AI API KEY: ")
     pinecone_api_key = input("Please Enter your PINECONE API KEY: ")
     pinecone_environment = input("Please Enter your PINECONE ENVIRONMENT REGION: ")
-    
-    print(run_llm(
-        query="What is the article mentioning about Vlad Tenev?",
-        api_key=openai_api_key,
-        pinecone_api_key=pinecone_api_key,
-        pinecone_environment=pinecone_environment
-    ))
+
+    print(
+        run_llm(
+            query="What is the article mentioning about Vlad Tenev?",
+            api_key=openai_api_key,
+            pinecone_api_key=pinecone_api_key,
+            pinecone_environment=pinecone_environment,
+        )
+    )

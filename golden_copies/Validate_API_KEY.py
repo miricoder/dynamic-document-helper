@@ -2,6 +2,7 @@ import streamlit as st
 import asyncio
 from openai import AsyncOpenAI
 
+
 async def main(api_key=None) -> None:
     if api_key is None:
         api_key = st.text_input("Please Enter your OPEN AI API KEY:")
@@ -21,7 +22,7 @@ async def main(api_key=None) -> None:
         )
 
         # Check if the request was successful
-        if chat_completion and hasattr(chat_completion, 'id'):
+        if chat_completion and hasattr(chat_completion, "id"):
             st.success("API Key is valid. You can proceed to the chat page.")
             # Enable the chat functionality here
             st.session_state.api_key_valid = True
@@ -34,6 +35,7 @@ async def main(api_key=None) -> None:
         st.error("Error: {}".format(e))
         # Disable the chat functionality on error
         st.session_state.api_key_valid = False
+
 
 if __name__ == "__main__":
     st.title("OpenAI Streamlit App")

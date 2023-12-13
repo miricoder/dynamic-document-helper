@@ -1,6 +1,7 @@
 import asyncio
 from openai import AsyncOpenAI
 
+
 async def main(api_key=None) -> None:
     if api_key is None:
         api_key = input("Please Enter your OPEN AI API KEY: ")
@@ -19,7 +20,7 @@ async def main(api_key=None) -> None:
         )
 
         # Check if the request was successful
-        if chat_completion and hasattr(chat_completion, 'id'):
+        if chat_completion and hasattr(chat_completion, "id"):
             print("Success! Chat completion ID:", chat_completion.id)
             # You can customize this success message further if needed.
 
@@ -30,6 +31,7 @@ async def main(api_key=None) -> None:
     except Exception as e:
         print("Error:", e)
         # You can customize this error message further if needed.
+
 
 if __name__ == "__main__":
     asyncio.run(main())

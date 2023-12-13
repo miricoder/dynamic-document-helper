@@ -5,6 +5,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
 import pinecone
+
 # from web_scraper import scrape_website  # Import the scrape_website function
 # from backend.web_scraper import scrape_website
 from web_scraper import scrape_website
@@ -18,10 +19,13 @@ pinecone.init(
     api_key=os.environ["PINECONE_API_KEY"],
     environment=os.environ["PINECONE_ENVIRONMENT_REGION"],
 )
+
+
 class SimpleDocument:
     def __init__(self, content, metadata):
         self.page_content = content
         self.metadata = metadata
+
 
 def ingest_docs(website_url: str) -> Any:
     # Call scrape_website function to get the scraped data
@@ -45,13 +49,15 @@ def ingest_docs(website_url: str) -> Any:
 
     print(f"Going to insert {len(documents)} to Pinecone")
     embeddings = OpenAIEmbeddings()
-    Pinecone.from_documents(documents, embeddings, index_name="langchain-doc-index")  # Replace with the actual index name
+    Pinecone.from_documents(
+        documents, embeddings, index_name="langchain-doc-index"
+    )  # Replace with the actual index name
     print("*************** Added to Pinecone Vectorstore Vectors")
+
 
 if __name__ == "__main__":
     # Get the website URL from the user or your frontend input mechanism
     website_url = input("Enter the URL of the website: ")
-    
-    # Call ingest_docs with the provided website_url
-    ingest_docs(website_url) # embeddings_input is the OPEN AI API Key
 
+    # Call ingest_docs with the provided website_url
+    ingest_docs(website_url)  # embeddings_input is the OPEN AI API Key

@@ -15,11 +15,11 @@ pinecone.init(
 )
 
 
-
 class SimpleDocument:
     def __init__(self, content, metadata):
         self.page_content = content
         self.metadata = metadata
+
 
 def ingest_docs() -> None:
     # Call scrape_website function to get the scraped data
@@ -44,8 +44,11 @@ def ingest_docs() -> None:
 
     print(f"Going to insert {len(documents)} to Pinecone")
     embeddings = OpenAIEmbeddings()
-    Pinecone.from_documents(documents, embeddings, index_name="langchain-doc-index")  # Replace with the actual index name
+    Pinecone.from_documents(
+        documents, embeddings, index_name="langchain-doc-index"
+    )  # Replace with the actual index name
     print("*************** Added to Pinecone Vectorstore Vectors")
+
 
 if __name__ == "__main__":
     ingest_docs()

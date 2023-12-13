@@ -1,11 +1,11 @@
 import asyncio
 import os
-import streamlit as st 
-from typing import Set 
+import streamlit as st
+from typing import Set
 from key_validators.openai_key_validator import main
 
 ######
-# Test whether the script will work in another script or not. 
+# Test whether the script will work in another script or not.
 # Comment out all UI before you test this
 # ----------------------------------------
 # def run_openai_script():
@@ -17,6 +17,7 @@ from key_validators.openai_key_validator import main
 # ----------------------------------------
 ######
 
+
 def validate_openai_key(api_key):
     try:
         # Call the main function from your_latest_script to validate the OpenAI API key
@@ -25,12 +26,13 @@ def validate_openai_key(api_key):
     except Exception as e:
         return False
 
+
 def main():
     st.title("OpenAI Key Validator")
-    
+
     # Get user input for OpenAI API key
     api_key = st.text_input("Enter your OpenAI API Key:")
-    
+
     # Validate the OpenAI API key
     if st.button("Validate"):
         st.write("Validating...")
@@ -41,6 +43,7 @@ def main():
         else:
             st.error("INVALID OPEN AI API KEY. CHECK THE KEY AND RE-ENTER.")
             st.warning("Note: Make sure you have entered a valid OpenAI API key.")
+
 
 if __name__ == "__main__":
     main()

@@ -1,12 +1,15 @@
 import streamlit as st
 from typing import Set
+import requests
 from backend.core2 import run_llm
 from backend.ingestion3 import ingest_docs
 from openai import AsyncOpenAI
 from langchain.embeddings import OpenAIEmbeddings
 import asyncio
 from streamlit_chat import message
-from pinecone import Index  # Updated import
+from langchain.vectorstores.pinecone import Pinecone
+from urllib3.util.retry import Retry
+
 
 # Function to validate OPEN AI API Key
 async def validate_api_key(api_key=None) -> None:
@@ -44,8 +47,10 @@ async def validate_api_key(api_key=None) -> None:
         st.session_state.api_key_valid = False
 
 # Function to handle web scraping and data ingestion
-def scrape_and_ingest_data(website_link: str, api_key: str, pinecone_api_key: str, pinecone_environment: str):
-    ingest_docs(website_link, api_key, pinecone_api_key, pinecone_environment)
+# Add the `@retry` decorator to your function
+# @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_attempt_number=5)
+async def scrape_and_ingest_data(website_link: str, api_key: str, pinecone_api_key: str, pinecone_environment: str):
+    await ingest_docs(website_link, api_key, pinecone_api_key, pinecone_environment)
 
 # Function to run the chat logic
 def run_chat(prompt: str, api_key: str, pinecone_api_key: str, pinecone_environment: str):
@@ -90,24 +95,12 @@ def run_chat(prompt: str, api_key: str, pinecone_api_key: str, pinecone_environm
             st.session_state["chat_answer_history"].append(formatted_response)
 
             st.session_state["chat_history"].append((prompt, generated_response["answer"]))
-# Function to flush Pinecone Index Embeddings
-def flush_pinecone_index_embeddings(pinecone_api_key: str, pinecone_environment: str, index_name: str):
-    try:
-        # Initialize Pinecone client and set the index name
-        pinecone = Index(index_name=index_name)
-
-        # Set the Pinecone API key and environment
-        pinecone.set_api_key(api_key=pinecone_api_key, environment=pinecone_environment)
-
-        # Flush (remove all data) from the Pinecone index
-        pinecone.flush()
-
-        st.success("Pinecone Index Embeddings flushed successfully!")
-
-    except Exception as e:
-        st.error(f"Error flushing Pinecone Index Embeddings: {e}")
-
-
+# Custom Session with retry mechanism
+class RetrySession(requests.Session):
+    def __init__(self, retries=3, backoff_factor=0.1, *args, **kwargs):
+        super(RetrySession, self).__init__(*args, **kwargs)
+        retries_config = Retry(total=retries, backoff_factor=backoff_factor)
+        self.mount('https://', requests.adapters.HTTPAdapter(max_retries=retries_config))
 # Streamlit app
 async def main():
     st.title("ChatGPT Interaction App")
@@ -121,9 +114,6 @@ async def main():
     # Step 3: User enters Pinecone Environment Region
     pinecone_environment = st.sidebar.text_input("Enter Pinecone Environment Region:", type='password')
 
-    # Step 4: User enters Pinecone Index Name
-    index_name = st.sidebar.text_input("Enter Pinecone Index Name:")
-
     if st.sidebar.button("Validate API Key"):
         # (Integration of Code 1) Call the async validate_api_key function
         await validate_api_key(api_key)
@@ -135,22 +125,23 @@ async def main():
         else:
             st.sidebar.error("Invalid API Key. Please try again.")
 
-    # Step 5: API Key validation successful, proceed to next steps
+    # Step 4: API Key validation successful, proceed to next steps
     if st.session_state.get('api_key_validated', False):
         # ... (Rest of your existing code in Code 2)
 
-        # Step 6: User inputs website link for web scraping
+        # Step 5: User inputs website link for web scraping
         website_link = st.text_input("Enter Website Link for Web Scraping:", key="website_link")
 
         if st.button("Scrape and Ingest Data"):
             if website_link:
-                # Pass the API key, pinecone_api_key, and pinecone_environment
-                scrape_and_ingest_data(website_link, st.session_state.api_key, pinecone_api_key, pinecone_environment)
-                st.success("Data scraped and ingested successfully!")
+                with RetrySession() as session:
+                    # Pass the API key, pinecone_api_key, and pinecone_environment  
+                    await scrape_and_ingest_data(website_link, st.session_state.api_key, pinecone_api_key, pinecone_environment)
+                    st.success("Data scraped and ingested successfully!")
             else:
                 st.warning("Please enter a valid website link.")
 
-        # Step 7: User enters chat mode
+        # Step 6: User enters chat mode
         st.subheader("Chat Mode")
 
         # Allow the user to press Enter for sending the prompt
@@ -174,11 +165,6 @@ async def main():
             for i, (generated_response, user_query) in enumerate(reversed(history_zip)):
                 message(user_query, is_user=True, key=f"user_{len(history_zip) - i - 1}")
                 message(generated_response, key=f"response_{len(history_zip) - i - 1}")
-
-        # Button to flush Pinecone Index Embeddings
-        if st.button("Flush Pinecone Index Embeddings"):
-            # Pass the Pinecone API key, Pinecone Environment, and Index Name
-            flush_pinecone_index_embeddings(pinecone_api_key, pinecone_environment, index_name)
 
 if __name__ == "__main__":
     asyncio.run(main())
