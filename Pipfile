@@ -26,3 +26,6 @@ python-version = "==\"3.9\""
 
 [requires]
 python_version = "3.9"
+
+[packages]
+package_name = "==version_number"
